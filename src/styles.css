@@ -149,3 +149,20 @@ body {
 .separator {
   color: #64748b;
 }
+
+
+.toggle-row button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggle-row .ghost {
+  margin-left: auto;
+  background: white;
+}
+
+.history-label {
+  display: block;
+  min-width: 5rem;
+  color: #475569;
+}

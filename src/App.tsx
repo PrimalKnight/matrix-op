@@ -46,18 +46,19 @@ export default function App() {
         <MatrixGrid
           title="Editable Matrix"
           matrix={matrix}
-          onCellChange={(row, col, value) => updateMatrix(setCell(matrix, row, col, value))}
+          onCellChange={(row, col, value) =>
+            updateMatrix(setCell(matrix, row, col, value), `Set (${row + 1}, ${col + 1}) = ${value}`)
+          }
         />
 
         <MatrixGrid title="Identity / Transform Tracker" matrix={identity} />
 
         <OperationCanvas
           size={size}
-          onSwap={(axis, from, to) => {
-            const result =
-              axis === 'row'
-                ? applyRowSwapToPair(matrix, identity, from, to)
-                : applyColSwapToPair(matrix, identity, from, to);
+          onReorder={(mode, permutation, description) => {
+            const nextMatrix = mode === 'row' ? permuteRows(matrix, permutation) : permuteCols(matrix, permutation);
+            const nextIdentity =
+              mode === 'row' ? permuteRows(identity, permutation) : permuteCols(identity, permutation);
 
             const operationLabel = `${axis === 'row' ? 'R' : 'C'}${from} ↔ ${axis === 'row' ? 'R' : 'C'}${to}`;
 

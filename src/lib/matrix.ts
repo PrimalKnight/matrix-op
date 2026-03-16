@@ -24,3 +24,16 @@ export const setCell = (matrix: Matrix, row: number, col: number, value: number)
   next[row][col] = value;
   return next;
 };
+
+export const moveIndex = (indices: number[], from: number, to: number): number[] => {
+  const next = [...indices];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+};
+
+export const permuteRows = (matrix: Matrix, permutation: number[]): Matrix =>
+  permutation.map((sourceRow) => [...matrix[sourceRow]]);
+
+export const permuteCols = (matrix: Matrix, permutation: number[]): Matrix =>
+  matrix.map((row) => permutation.map((sourceCol) => row[sourceCol]));

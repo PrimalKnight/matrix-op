@@ -1,5 +1,10 @@
 import { Matrix } from '../lib/matrix';
 
+type HistoryEntry = {
+  matrix: Matrix;
+  description: string;
+};
+
 type HistoryViewProps = {
   entries: Matrix[];
   operationLabels?: string[];
