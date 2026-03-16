@@ -3,37 +3,36 @@ import MatrixGrid from './components/MatrixGrid';
 import MatrixSelector from './components/MatrixSelector';
 import OperationCanvas from './components/OperationCanvas';
 import HistoryView from './components/HistoryView';
-import { Matrix, createZeroMatrix, permuteCols, permuteRows, setCell } from './lib/matrix';
-import { createIdentityMatrix } from './lib/identity';
-
-type HistoryEntry = {
-  matrix: Matrix;
-  description: string;
-};
+import { Matrix, cloneMatrix, createZeroMatrix, setCell } from './lib/matrix';
+import { applyColSwapToPair, applyRowSwapToPair, createIdentityMatrix } from './lib/identity';
 
 export default function App() {
   const [size, setSize] = useState(3);
   const [matrix, setMatrix] = useState<Matrix>(() => createZeroMatrix(3));
   const [identity, setIdentity] = useState<Matrix>(() => createIdentityMatrix(3));
-  const [history, setHistory] = useState<HistoryEntry[]>([
-    { matrix: createZeroMatrix(3), description: 'Initial matrix' },
-  ]);
+  const [historySnapshots, setHistorySnapshots] = useState<Matrix[]>([createZeroMatrix(3)]);
+  const [historyOperationLabels, setHistoryOperationLabels] = useState<string[]>([]);
 
   const handleResize = (nextSize: number) => {
     const nextMatrix = createZeroMatrix(nextSize);
     setSize(nextSize);
     setMatrix(nextMatrix);
     setIdentity(createIdentityMatrix(nextSize));
-    setHistory([{ matrix: nextMatrix, description: `Resized to ${nextSize}×${nextSize}` }]);
+    setHistorySnapshots([cloneMatrix(nextMatrix)]);
+    setHistoryOperationLabels([]);
   };
 
-  const updateMatrix = (next: Matrix, description: string, nextIdentity = identity) => {
+  const updateMatrix = (next: Matrix, nextIdentity = identity, operationLabel?: string) => {
     setMatrix(next);
     setIdentity(nextIdentity);
-    setHistory((prev) => [...prev, { matrix: next, description }]);
+
+    if (operationLabel) {
+      setHistorySnapshots((prev) => [...prev, cloneMatrix(next)]);
+      setHistoryOperationLabels((prev) => [...prev, operationLabel]);
+    }
   };
 
-  const historyEntries = useMemo(() => history.slice(-8), [history]);
+  const historyEntries = useMemo(() => historySnapshots, [historySnapshots]);
 
   return (
     <main className="app-shell">
@@ -61,12 +60,14 @@ export default function App() {
             const nextIdentity =
               mode === 'row' ? permuteRows(identity, permutation) : permuteCols(identity, permutation);
 
-            updateMatrix(nextMatrix, description, nextIdentity);
+            const operationLabel = `${axis === 'row' ? 'R' : 'C'}${from} ↔ ${axis === 'row' ? 'R' : 'C'}${to}`;
+
+            updateMatrix(result.matrix, result.identity, operationLabel);
           }}
         />
       </section>
 
-      <HistoryView entries={historyEntries} />
+      <HistoryView entries={historyEntries} operationLabels={historyOperationLabels} />
     </main>
   );
 }
