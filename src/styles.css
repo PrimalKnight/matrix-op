@@ -1,0 +1,65 @@
+:root {
+  font-family: Inter, system-ui, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6fb;
+  color: #1d2230;
+}
+
+.app {
+  max-width: 700px;
+  margin: 2rem auto;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.matrix-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.matrix-selector select {
+  padding: 0.3rem;
+}
+
+.matrix-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cell input {
+  padding: 0.4rem;
+  border: 1px solid #cfd5e2;
+  border-radius: 6px;
+}
+
+.cell input.invalid {
+  border-color: #c93232;
+}
+
+.cell small {
+  color: #c93232;
+  font-size: 0.75rem;
+}
+
+.matrix-grid-wrap button {
+  margin-top: 1rem;
+}
+
+.operations {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e4e9f2;
+}
