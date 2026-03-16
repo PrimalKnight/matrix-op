@@ -1,38 +1,64 @@
-import { useState } from 'react';
-import MatrixGrid from './MatrixGrid';
-import MatrixSelector, { createMatrix } from './MatrixSelector';
+import { useMemo, useState } from 'react';
+import MatrixGrid from './components/MatrixGrid';
+import MatrixSelector from './components/MatrixSelector';
+import OperationCanvas from './components/OperationCanvas';
+import HistoryView from './components/HistoryView';
+import { Matrix, createZeroMatrix, setCell } from './lib/matrix';
+import { applyColSwapToPair, applyRowSwapToPair, createIdentityMatrix } from './lib/identity';
 
 export default function App() {
-  const [matrix, setMatrix] = useState<number[][]>(createMatrix(2));
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [size, setSize] = useState(3);
+  const [matrix, setMatrix] = useState<Matrix>(() => createZeroMatrix(3));
+  const [identity, setIdentity] = useState<Matrix>(() => createIdentityMatrix(3));
+  const [history, setHistory] = useState<Matrix[]>([createZeroMatrix(3)]);
 
-  const handleMatrixChange = (nextMatrix: number[][]) => {
+  const handleResize = (nextSize: number) => {
+    const nextMatrix = createZeroMatrix(nextSize);
+    setSize(nextSize);
     setMatrix(nextMatrix);
-    setIsConfirmed(false);
+    setIdentity(createIdentityMatrix(nextSize));
+    setHistory([nextMatrix]);
   };
 
-  const handleConfirm = () => {
-    setIsConfirmed(true);
+  const updateMatrix = (next: Matrix, nextIdentity = identity) => {
+    setMatrix(next);
+    setIdentity(nextIdentity);
+    setHistory((prev) => [...prev, next]);
   };
+
+  const historyEntries = useMemo(() => history.slice(-8), [history]);
 
   return (
-    <main className="app">
-      <h1>Matrix Operator</h1>
-      <MatrixSelector onMatrixChange={handleMatrixChange} />
-      <MatrixGrid
-        matrix={matrix}
-        isConfirmed={isConfirmed}
-        onMatrixChange={handleMatrixChange}
-        onConfirm={handleConfirm}
-      />
+    <main className="app-shell">
+      <header>
+        <h1>Matrix Workflow Playground</h1>
+      </header>
 
-      <section className="operations" aria-live="polite">
-        <h2>Operations</h2>
-        <button type="button" disabled={!isConfirmed}>
-          Compute determinant
-        </button>
-        {!isConfirmed ? <p>Confirm your matrix to enable operations.</p> : <p>Matrix locked.</p>}
+      <MatrixSelector value={size} onChange={handleResize} />
+
+      <section className="workspace">
+        <MatrixGrid
+          title="Editable Matrix"
+          matrix={matrix}
+          onCellChange={(row, col, value) => updateMatrix(setCell(matrix, row, col, value))}
+        />
+
+        <MatrixGrid title="Identity / Transform Tracker" matrix={identity} />
+
+        <OperationCanvas
+          size={size}
+          onSwap={(axis, from, to) => {
+            const result =
+              axis === 'row'
+                ? applyRowSwapToPair(matrix, identity, from, to)
+                : applyColSwapToPair(matrix, identity, from, to);
+
+            updateMatrix(result.matrix, result.identity);
+          }}
+        />
       </section>
+
+      <HistoryView entries={historyEntries} />
     </main>
   );
 }
