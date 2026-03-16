@@ -138,3 +138,30 @@ body {
   min-width: 5rem;
   color: #475569;
 }
+
+
+.history {
+  overflow: hidden;
+}
+
+.history-track {
+  padding-bottom: 0.25rem;
+  white-space: nowrap;
+}
+
+.history-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.history-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.history-op-label {
+  color: #475569;
+  font-weight: 600;
+}

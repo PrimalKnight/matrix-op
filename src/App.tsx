@@ -8,15 +8,17 @@ import { createIdentityMatrix } from './lib/identity';
 
 type HistoryEntry = {
   matrix: Matrix;
-  description: string;
+  operationLabel?: string;
 };
+
+const cloneMatrix = (matrix: Matrix): Matrix => matrix.map((row) => [...row]);
 
 export default function App() {
   const [size, setSize] = useState(3);
   const [matrix, setMatrix] = useState<Matrix>(() => createZeroMatrix(3));
   const [identity, setIdentity] = useState<Matrix>(() => createIdentityMatrix(3));
   const [history, setHistory] = useState<HistoryEntry[]>([
-    { matrix: createZeroMatrix(3), description: 'Initial matrix' },
+    { matrix: createZeroMatrix(3), operationLabel: 'Initial' },
   ]);
 
   const handleResize = (nextSize: number) => {
@@ -24,16 +26,16 @@ export default function App() {
     setSize(nextSize);
     setMatrix(nextMatrix);
     setIdentity(createIdentityMatrix(nextSize));
-    setHistory([{ matrix: nextMatrix, description: `Resized to ${nextSize}×${nextSize}` }]);
+    setHistory([{ matrix: cloneMatrix(nextMatrix), operationLabel: `Resized to ${nextSize}×${nextSize}` }]);
   };
 
-  const updateMatrix = (next: Matrix, description: string, nextIdentity = identity) => {
+  const updateMatrix = (next: Matrix, operationLabel?: string, nextIdentity = identity) => {
     setMatrix(next);
     setIdentity(nextIdentity);
-    setHistory((prev) => [...prev, { matrix: next, description }]);
+    setHistory((prev) => [...prev, { matrix: cloneMatrix(next), operationLabel }]);
   };
 
-  const historyEntries = useMemo(() => history.slice(-8), [history]);
+  const historyEntries = useMemo(() => history, [history]);
 
   return (
     <main className="app-shell">
